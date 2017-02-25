@@ -1161,12 +1161,20 @@ class Bridge(object):
         can be improved later).
 
         """
-        groups = [x for x in self.groups if x.name == group_name]
-        scenes = [x for x in self.scenes if x.name == scene_name]
-        if len(groups) != 1:
+        groups = [] if group_name is None else [x for x in self.groups if x.name.find(group_name)]
+        scenes = [x for x in self.scenes if x.name.find(scene_name)]
+        if len(groups) > 1:
             logger.warn("run_scene: More than 1 group found by name %s",
                         group_name)
             return
+        elif len(groups) == 0:
+            if len(scenes) > 0:
+                self.activate_scene(0, scenes[0].scene_id)
+                return
+            else:
+                logger.warn("run_scene: No scene found %s", scene_name)
+                return
+
         group = groups[0]
         if len(scenes) == 0:
             logger.warn("run_scene: No scene found %s", scene_name)
